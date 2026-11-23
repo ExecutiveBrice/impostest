@@ -1,0 +1,73 @@
+# npc campaign configuration — every key is optional; defaults shown.
+# NOTE: these top-level keys must stay ABOVE the [sections].
+
+# language = "en"                  # en, fr (France), fr-CH (Swiss), fr-CA (Canada/Quebec), fr-BE (Belgium)
+# history_limit = 30                # messages of dialogue kept in the prompt
+# logbook_sessions_in_prompt = 3    # previous session summaries the NPC remembers
+# checkpoint_every_turns = 20       # auto-save logbook every N player turns
+# min_clip_seconds = 0.25           # discard accidental taps shorter than this
+
+[llm]
+# backend = "ollama"                # or "openai" for Jan, LM Studio, llama.cpp, vLLM, …
+# model = "qwen2.5:7b-instruct"     # Ollama tag, or the model name your app lists
+# host = "http://localhost:11434"   # Jan: http://localhost:1337  LM Studio: http://localhost:1234
+# timeout_seconds = 60              # per-request cap; a hung server becomes an error, not a stuck session
+# retries = 1                       # extra attempts after connection failures (HTTP errors never retry)
+# stream = true                     # speak sentence-by-sentence while the reply generates
+# num_ctx = 8192                    # Ollama context window; raise when attaching lore/ docs
+#                                   # (npc doctor suggests a value; larger windows use more VRAM)
+# api_key = ""                      # OpenAI-compatible servers only — stored in PLAINTEXT here;
+#                                   # prefer:  export NPC_LLM_API_KEY=...  (overrides this value)
+
+[stt]
+# model = "small"                   # whisper size: tiny/base/small/medium/large-v3
+# language = "auto"                 # auto-detect; pin with "fr", "sv" or "en"
+# device = "auto"                   # auto/cpu/cuda
+# silence_threshold_db = -45        # clips quieter than this (dBFS) are discarded as silence
+#                                   # raise it (e.g. -35) if room noise triggers phantom replies
+# vad_silence_seconds = 1.2         # tap mode: this much trailing silence ends a recording
+# vad_max_seconds = 30              # tap mode: hard cap on one utterance
+
+[tts]
+# backend = "piper"                # piper, pocket (CPU streaming), qwen (VoiceDesign)
+# model = "french"                 # Pocket: french (fast), french_24l, english
+# voice = "en_GB-alba-medium"       # optional override; French defaults to fr_FR-siwis-medium
+#                                   # Pocket defaults to "estelle"; also marius, javert, jean, alba, anna
+# voices_dir = "~/.local/share/npc/voices"
+# qwen_model = "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"  # model ID or downloaded directory
+# qwen_device = "auto"             # auto, cpu, cuda:0 (requires a CUDA PyTorch build)
+# qwen_language = "Auto"           # French, English, …; for Qwen NPC dialogue
+# voice = "A warm, calm storyteller voice."          # description when backend = qwen
+
+# [tts.voices]                      # per-NPC voices; key = character file stem
+# korval = "en_GB-northern_english_male-medium"   # characters/korval.md
+# korval = "marius"                 # example when backend = "pocket"
+# character = "en_GB-alba-medium"                 # the campaign-root character.md
+#                                   # unmapped characters use the default_campaign voice above
+
+[overlay]
+# enabled = false                   # broadcast events + serve the overlay page while running
+# port = 8765                       # OBS browser source / browser: http://127.0.0.1:8765
+# listen = "127.0.0.1"              # "0.0.0.0" (or your LAN IP) lets a table tablet connect —
+#                                   # unencrypted + visible to the whole network; LAN mode sends
+#                                   # play events only (GM notes & secrets never leave the machine)
+
+[mobile]
+# enabled = false                   # GM companion WebSocket API, additional to CLI/overlay
+# listen = "127.0.0.1"              # explicit LAN opt-in: your IP or "0.0.0.0"
+# port = 8766                       # Studio: http://127.0.0.1:8766/ ; API: /ws
+# local_playback = true             # false: client audio only, avoiding PC/phone echo
+  # secret_approval = true            # trusted GM remote; false for player-only clients
+
+[hotkey]
+# key = "KEY_SPACE"                 # any evdev key name, e.g. KEY_RIGHTCTRL, KEY_F12
+# mode = "hold"                     # "hold" = push-to-talk; "tap" = tap once, silence ends it
+# device = ""                       # pin one device, e.g. "/dev/input/by-id/usb-...-event-kbd"
+# grab = false                      # true = take the device exclusively (dedicated buttons only!)
+
+# [character_languages]             # per-NPC language; key = character file stem
+# character = "fr-CH"               # campaign-root character.md
+# korval = "fr-CA"                  # characters/korval.md
+# vess = "fr-BE"                    # absent entry = inherit campaign language
+# Regional vocabulary is prompted; the actual accent depends on the selected voice.
+# Use [tts.voices] to override individual voices; explicit voices are preserved.

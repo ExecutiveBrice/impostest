@@ -1,0 +1,103 @@
+[project]
+name = "ttrpg-npc"
+version = "1.0.0"
+description = "Offline voice agent that role-plays NPCs at the tabletop RPG game table"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "seetee" }]
+keywords = ["ttrpg", "tabletop", "rpg", "npc", "voice", "offline", "whisper", "piper", "ollama"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: MacOS X",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment :: Role-Playing",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "evdev>=1.7; sys_platform == 'linux'",
+    "faster-whisper>=1.1",
+    "httpx>=0.27",
+    "numpy>=1.26",
+    "ollama>=0.5",
+    "piper-tts>=1.2",
+    "pypdf>=5",
+    "prompt-toolkit>=3.0",
+    "sounddevice>=0.5",
+    "websockets>=13",
+]
+
+[project.optional-dependencies]
+qwen = [
+    "qwen-tts>=0.1.1,<0.2; python_version < '3.14'",
+    "torch>=2.6; python_version < '3.14'",
+    "torchaudio==2.6.0; python_version < '3.14'",
+]
+pocket = [
+    "pocket-tts[audio]==3.3.0; python_version < '3.15'",
+    "torch==2.6.0; python_version < '3.14'",
+    "torch>=2.9; python_version >= '3.14' and python_version < '3.15'",
+]
+cuda = [
+    "nvidia-cublas-cu12",
+    "nvidia-cudnn-cu12>=9",
+]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'win32' or sys_platform == 'linux'" }]
+torchaudio = [{ index = "pytorch-cpu", marker = "sys_platform == 'win32' or sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[project.urls]
+Homepage = "https://github.com/seetee/npc"
+Repository = "https://github.com/seetee/npc"
+Issues = "https://github.com/seetee/npc/issues"
+
+[project.scripts]
+npc = "npc.cli:main"
+
+[project.gui-scripts]
+npc-gui = "npc.gui:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/npc"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    ".github/", ".idea/", "campaigns/", "/src/default_campaign/",
+    "*.onnx", "*.onnx.json", "voix/", "histoires/",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: needs real models/services (run with `pytest -m integration`)",
+    "gui: needs a desktop display and NPC_TEST_GUI=1 (no models or microphone)",
+]
+addopts = "-m 'not integration'"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
